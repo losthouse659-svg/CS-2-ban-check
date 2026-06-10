@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KMO | Professional PC Tuning System</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- RESET & VARIABLES --- */
+        *:box-sizing { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        :root {
+            --bg-base: #0a0d14;
+            --bg-surface: #111522;
+            --bg-surface-hover: #161c2e;
+            --bg-input: #07090e;
+            --border-subtle: #1e2538;
+            --border-focus: #3b82f6;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent: #00f0ff;
+            --accent-gradient: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .glass-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 12px 24px; font-weight: 600; font-size: 0.95rem;
+            border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer;
+            transition: all 0.2s ease; text-decoration: none;
+        }
+        .btn-primary { background: var(--accent-gradient); color: #ffffff; }
+        .btn-primary:hover { opacity: 0.95; transform: translateY(-1px); }
+        .btn-secondary { background: transparent; color: var(--text-primary); border-color: var(--border-subtle); }
+        .btn-secondary:hover { background: var(--bg-surface-hover); }
+        
+        /* Discord Button Style */
+        .btn-discord {
+            background: #5865F2;
+            color: #ffffff;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-discord:hover {
+            background: #4752C4;
+            transform: translateY(-1px);
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            border-bottom: 1px solid var(--border-subtle); background: rgba(10, 13, 20, 0.8);
+            backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; height: 72px;
+        }
+        .nav-inner { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+        .logo { font-weight: 800; font-size: 1.25rem; color: var(--text-primary); text-decoration: none; }
+        .logo span { color: #00f0ff; }
+        .nav-menu { display: flex; list-style: none; gap: 8px; align-items: center; }
+        .nav-link { color: var(--text-secondary); text-decoration: none; padding: 8px 16px; font-size: 0.95rem; font-weight: 500; border-radius: var(--radius-md); }
+        .nav-link:hover, .nav-link.active { color: var(--text-primary); background: var(--bg-surface); }
+
+        /* --- VIEWS --- */
+        .view-section { display: none; padding: 60px 0; }
+        .view-section.active-view { display: block; }
+
+        /* --- HERO & SERVICES --- */
+        .hero-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 48px; align-items: center; }
+        .hero-left h1 { font-size: clamp(2.5rem, 5vw, 3.75rem); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+        .hero-left h1 span { background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .promo-card { padding: 32px; }
+        
+        .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 32px; }
+        .service-card { padding: 32px; display: flex; flex-direction: column; justify-content: space-between; }
+        .service-card .price { font-family: var(--font-mono); font-size: 1.75rem; font-weight: 700; color: #00f0ff; margin: 16px 0; }
+
+        /* --- CHAT ARCHITECTURE SYSTEM (COMMON DESIGN) --- */
+        .chat-container-box { max-width: 800px; margin: 0 auto; min-height: 500px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border-subtle); }
+        .chat-view-header { background: var(--bg-surface-hover); padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }
+        .chat-logs-area { flex: 1; padding: 20px; background: #07090e; display: flex; flex-direction: column; gap: 12px; height: 350px; overflow-y: auto; }
+        .chat-msg { max-width: 75%; padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.4; word-break: break-word; }
+        .msg-client { background: #1e2538; align-self: flex-start; color: var(--text-primary); }
+        .msg-admin { background: #3b82f6; align-self: flex-end; color: white; }
+        .chat-input-row { padding: 16px; background: var(--bg-surface); border-top: 1px solid var(--border-subtle); display: flex; gap: 12px; }
+
+        /* ADMIN SPECIFIC LAYOUT */
+        .admin-dashboard-layout { display: none; }
+        .admin-dashboard-layout.unlocked { display: block; }
+        .admin-chat-grid { display: grid; grid-template-columns: 260px 1fr; gap: 16px; background: #07090e; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); height: 500px; overflow: hidden; }
+        .admin-chat-sidebar { background: var(--bg-surface); border-right: 1px solid var(--border-subtle); overflow-y: auto; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 14px; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border-subtle); }
+        .user-session-item { padding: 14px 18px; border-bottom: 1px solid rgba(30,37,56,0.4); cursor: pointer; transition: background 0.2s; font-size: 0.9rem; text-align: left; }
+        .user-session-item:hover { background: var(--bg-surface-hover); }
+        .user-session-item.selected-session { background: rgba(59,130,246,0.15); border-left: 4px solid var(--border-focus); color: white; }
+        .admin-chat-main { display: flex; flex-direction: column; background: #04060a; }
+
+        /* --- AUTH GATES (GATEWAYS) --- */
+        .auth-gate-center { max-width: 440px; margin: 60px auto; padding: 40px; text-align: center; }
+
+        /* --- FORMS & MODALS --- */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 6, 10, 0.85); backdrop-filter: blur(8px);
+            z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-backdrop.active { display: flex; }
+        .modal-window { background: var(--bg-surface); border: 1px solid var(--border-subtle); max-width: 520px; width: 100%; padding: 32px; border-radius: var(--radius-lg); position: relative; }
+        .form-field { margin-bottom: 18px; text-align: left; }
+        .form-field label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+        .input-box { width: 100%; background: var(--bg-input); border: 1px solid var(--border-subtle); padding: 12px 16px; color: white; border-radius: var(--radius-md); }
+        .input-box:focus { outline: none; border-color: var(--border-focus); }
+        
+        .payment-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .payment-option { border: 1px solid var(--border-subtle); background: var(--bg-input); padding: 12px; text-align: center; border-radius: var(--radius-md); cursor: pointer; color: var(--text-secondary); font-weight: 600; }
+        .payment-option.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); color: white; }
+
+        .modal-slide { display: none; }
+        .modal-slide.active-slide { display: block; }
+
+        .info-panel { background: #07090e; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-bottom: 10px; }
+        .info-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; }
+        .info-data { font-family: var(--font-mono); font-weight: 700; color: #00f0ff; margin-top: 2px; }
+
+        .tutorial-box { background: rgba(59, 130, 246, 0.08); border: 1px dashed var(--border-focus); padding: 16px; border-radius: var(--radius-md); margin-top: 18px; text-align: left; }
+        .tutorial-step { font-size: 0.85rem; margin-bottom: 6px; color: var(--text-secondary); display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="container nav-inner">
+            <a href="#home" class="logo">KUBAJZ<span>.OPTI</span></a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link active" id="link-home">Storefront</a></li>
+                    <li><a href="#services" class="nav-link" id="link-services">Služby</a></li>
+                    <li><a href="#buyer-chat" class="nav-link" id="link-buyer-chat">💬 Chat s majitelem</a></li>
+                    <li><a href="#admin" class="nav-link" id="link-admin">🔒 Admin Hub</a></li>
+                    <li><a href="https://discord.com/channels/1416205542468091988/1417903932491042938" target="_blank" class="btn-discord">
+                        <svg width="16" height="16" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a74.37,74.37,0,0,0,6.85-11.11,68.43,68.43,0,0,1-10.75-5.13c.91-.66,1.8-1.34,2.65-2a75.58,75.58,0,0,0,72.7,0c.85.69,1.74,1.37,2.65,2a68.44,68.44,0,0,1-10.75,5.13,74.66,74.66,0,0,0,6.85,11.11,105.73,105.73,0,0,0,31.58-18.83C129.55,47.95,123.3,25.21,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.92,46,53.72,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.16,46,96,53,91,65.69,84.69,65.69Z"/></svg>
+                        Discord
+                    </a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="view-home" class="view-section active-view">
+            <div class="container">
+                <div class="hero-grid">
+                    <div class="hero-left">
+                        <h1>Premium System <span>Optimization</span></h1>
+                        <p>Ruční kalibrace operačního systému pro esport competitive hraní. Snížíme latenci a maximalizujeme stabilitu FPS.</p>
+                        <div style="display: flex; gap: 12px;">
+                            <a href="#services" class="btn btn-primary">Nabídka služeb</a>
+                        </div>
+                    </div>
+                    <div class="hero-right">
+                        <div class="glass-card promo-card">
+                            <span style="font-family: var(--font-mono); font-size: 0.8rem; color: #00f0ff;">BESTSELLER</span>
+                            <h2 style="margin-top: 4px;">Full Optimization Package</h2>
+                            <div style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: 700; margin: 20px 0;">50.00 EUR</div>
+                            <button class="btn btn-primary" style="width: 100%;" onclick="openGateModal('Full Optimization')">Koupit a Zaplatit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-services" class="view-section">
+            <div class="container">
+                <h2 style="font-size: 1.75rem; font-weight: 700;">Nabízené úpravy</h2>
+                <div class="services-grid">
+                    <div class="glass-card service-card">
+                        <div>
+                            <h3>Full Optimization</h3>
+                            <div class="price">50€</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="openGateModal('Full Optimization')">Zvolit konfiguraci</button>
+                    </div>
+                    <div class="glass-card service-card">
+                        <div>
+                            <h3>Windows Tweaks & OS Clean</h3>
+                            <div class="price">30€</div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="openGateModal('Windows Tweaks & OS Clean')">Zvolit konfiguraci</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-buyer-chat" class="view-section">
+            <div class="container">
+                
+                <div class="glass-card auth-gate-center" id="buyer-gate-ui">
+                    <div style="font-size: 2.5rem; margin-bottom: 12px;">🔑</div>
+                    <h2 style="font-size: 1.4rem; margin-bottom: 6px;">Přihlášení do Buyers Chatu</h2>
+                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px;">Zadejte přístupové údaje, které se vám vygenerovaly po dokončení objednávky.</p>
+                    
+                    <form id="buyerLoginForm">
+                        <div class="form-field">
+                            <label>Číslo Chatu</label>
+                            <input type="text" id="input-chat-id" class="input-box" placeholder="#CHAT-1234" required>
+                        </div>
+                        <div class="form-field">
+                            <label>Speciální kód (Heslo chatu)</label>
+                            <input type="password" id="input-chat-token" class="input-box" placeholder="KMO-SEC-XXXXXX" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Ověřit a vstoupit do chatu</button>
+                    </form>
+                </div>
+
+                <div class="glass-card chat-container-box" id="buyer-chat-interface" style="display: none;">
+                    <div class="chat-view-header">
+                        <div>
+                            <strong style="color: #00f0ff;" id="buyer-header-title">Chat kanál</strong>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Zabezpečené spojení s majitelem</div>
+                        </div>
+                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="exitBuyerChat()">Odhlásit z chatu</button>
+                    </div>
+                    <div class="chat-logs-area" id="buyer-chat-logs"></div>
+                    <div class="chat-input-row">
+                        <input type="text" id="buyer-chat-input" class="input-box" placeholder="Napište zprávu majiteli...">
+                        <button class="btn btn-primary" onclick="sendBuyerMessage()">Odeslat</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="view-admin" class="view-section">
+            <div class="container">
+                
+                <div class="glass-card auth-gate-center" id="auth-gate-ui">
+                    <div style="font-size: 2rem; margin-bottom: 12px;">🔒</div>
+                    <h2 style="font-size: 1.35rem; margin-bottom: 16px;">KMO Admin Control Base</h2>
+                    <form id="adminLoginForm">
+                        <div class="form-field">
+                            <label>Uživatelské jméno</label>
+                            <input type="text" id="admin-user" class="input-box" placeholder="Uživatelské jméno" required>
+                        </div>
+                        <div class="form-field">
+                            <label>Heslo</label>
+                            <input type="password" id="admin-pass" class="input-box" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Přihlásit se</button>
+                    </form>
+                </div>
+
+                <div class="admin-dashboard-layout" id="dashboard-main-ui">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div>
+                            <h2 style="font-size: 1.6rem; font-weight: 700;">System Management Base</h2>
+                            <div style="font-size: 0.85rem; color: var(--success);" id="admin-logged-name">Vítej, administrátore</div>
+                        </div>
+                        <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 0.85rem;" onclick="logoutAdmin()">Odhlásit se</button>
+                    </div>
+
+                    <div class="admin-chat-grid">
+                        <div class="admin-chat-sidebar" id="admin-session-list">
+                            <div class="sidebar-header">Aktivní kanály klientů</div>
+                        </div>
+
+                        <div class="admin-chat-main">
+                            <div class="admin-chat-current-title" id="admin-current-chat-title">Zvolte klienta ze seznamu</div>
+                            <div class="chat-logs-area" id="admin-chat-logs" style="flex:1;">
+                                <div style="color:var(--text-muted); text-align:center; margin-top:40px; font-size:0.9rem;">Žádný vybraný chat.</div>
+                            </div>
+                            <div class="chat-input-row">
+                                <input type="text" id="admin-chat-input" class="input-box" placeholder="Odpovědět klientovi..." disabled>
+                                <button class="btn btn-primary" id="admin-chat-btn" onclick="sendAdminMessage()" disabled>Odeslat</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-backdrop" id="checkoutModal">
+        <div class="modal-window">
+            
+            <div id="slide-form" class="modal-slide active-slide">
+                <h3 style="margin-bottom: 16px; font-size: 1.3rem;">Dokončení Objednávky</h3>
+                <form id="checkoutForm">
+                    <div class="form-field">
+                        <label>Jméno / Přezdívka</label>
+                        <input type="text" id="f-name" class="input-box" placeholder="Tvoje jméno" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Vaše PC komponenty</label>
+                        <input type="text" id="f-comps" class="input-box" placeholder="Ryzen 7, RTX 4070" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Vybraná služba</label>
+                        <input type="text" id="f-service" class="input-box" readonly>
+                    </div>
+                    <div class="form-field">
+                        <label>Zvolte platební metodu</label>
+                        <div class="payment-selector">
+                            <div class="payment-option selected" id="method-paypal" onclick="setPaymentMethod('PayPal')">PayPal</div>
+                            <div class="payment-option" id="method-bank" onclick="setPaymentMethod('Bank Transfer')">Bank Transfer</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeGateModal()">Zrušit</button>
+                        <button type="submit" class="btn btn-primary" style="background:var(--success);">Dokončit objednávku</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="slide-payment-details" class="modal-slide">
+                <h3 id="pay-title" style="margin-bottom: 12px; font-size: 1.3rem; color: #00f0ff;">Platební instrukce</h3>
+                
+                <div id="bank-info-group">
+                    <div class="info-panel"><div class="info-title">Číslo bankovního účtu</div><div class="info-data">123456789 / 3030</div></div>
+                    <div class="info-panel"><div class="info-title">Částka k úhradě</div><div class="info-data" style="color:var(--success);">1 250 Kč / 50€</div></div>
+                </div>
+
+                <div id="paypal-info-group" style="display: none;">
+                    <div class="info-panel"><div class="info-title">PayPal Business Email</div><div class="info-data">kubajz.admin@gmail.com</div></div>
+                    <div class="info-panel"><div class="info-title">Částka k zaslání</div><div class="info-data" style="color:var(--success);">50.00 EUR</div></div>
+                </div>
+
+                <div style="height: 1px; background: var(--border-subtle); margin: 16px 0;"></div>
+
+                <h4 style="font-size: 1rem; color: #ffffff; margin-bottom: 8px;">🔑 Vaše přístupové klíče k chatu</h4>
+                <div class="info-panel" style="border-color: var(--success);">
+                    <div class="info-title" style="color: var(--success);">Číslo Chatu</div>
+                    <div class="info-data" id="generated-chat-id">#CHAT-XXXX</div>
+                </div>
+                <div class="info-panel" style="border-color: var(--success);">
+                    <div class="info-title" style="color: var(--success);">Speciální Kód Kupujícího (Heslo chatu)</div>
+                    <div class="info-data" id="generated-buyer-token">KMO-SEC-XXXXXX</div>
+                </div>
+
+                <div class="tutorial-box">
+                    <h5 style="color: #00f0ff; font-size: 0.9rem; margin-bottom: 8px; font-weight: 700;">📖 TUTORIÁL: Jak chatovat s majitelem:</h5>
+                    <div class="tutorial-step"><div>1️⃣</div><div>Zkopíruj nebo si opiš <strong>Číslo chatu</strong> a <strong>Speciální kód</strong>.</div></div>
+                    <div class="tutorial-step"><div>2️⃣</div><div>V horním menu webu klikni na záložku <strong>Chat s majitelem</strong>.</div></div>
+                    <div class="tutorial-step"><div>3️⃣</div><div>Zadej oba kódy do formuláře a potvrď. Odemkne se ti přímá linka.</div></div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="goToChatViewDirectly()">Přejít do login chatu</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const ACCOUNTS = { "Michal": "misannov6985", "Kuba": "jakbHskolaamichal" };
+        
+        let ALL_CHATS = JSON.parse(localStorage.getItem('kmo_system_chats')) || {};
+        let loggedClientChatID = sessionStorage.getItem('active_client_chat_id') || null;
+        let selectedAdminActiveSession = null; 
+        let selectedPaymentMethod = "PayPal";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            route();
+            checkClientSession();
+        });
+
+        // ROUTING SYSTEM
+        function route() {
+            const hash = window.location.hash || '#home';
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+            if (hash === '#home') document.getElementById('view-home').classList.add('active-view'), document.getElementById('link-home').classList.add('active');
+            if (hash === '#services') document.getElementById('view-services').classList.add('active-view'), document.getElementById('link-services').classList.add('active');
+            if (hash === '#buyer-chat') {
+                document.getElementById('view-buyer-chat').classList.add('active-view');
+                document.getElementById('link-buyer-chat').classList.add('active');
+                checkClientSession();
+            }
+            if (hash === '#admin') {
+                document.getElementById('view-admin').classList.add('active-view');
+                document.getElementById('link-admin').classList.add('active');
+                updateAdminDashboard();
+            }
+        }
+        window.addEventListener('hashchange', route);
+
+        // --- CLIENT BUYERS CHAT SYSTEM ---
+        document.getElementById('buyerLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const chatId = document.getElementById('input-chat-id').value.trim();
+            const token = document.getElementById('input-chat-token').value.trim();
+
+            if (ALL_CHATS[chatId] && ALL_CHATS[chatId].token === token) {
+                loggedClientChatID = chatId;
+                sessionStorage.setItem('active_client_chat_id', chatId);
+                checkClientSession();
+            } else {
+                alert("Neplatné Číslo chatu nebo Speciální kód!");
+            }
+        });
+
+        function checkClientSession() {
+            if (loggedClientChatID && ALL_CHATS[loggedClientChatID]) {
+                document.getElementById('buyer-gate-ui').style.display = 'none';
+                document.getElementById('buyer-chat-interface').style.display = 'flex';
+                document.getElementById('buyer-header-title').innerText = `Aktivní Kanál: ${ALL_CHATS[loggedClientChatID].name} (${loggedClientChatID})`;
+                renderBuyerChatLogs();
+            } else {
+                document.getElementById('buyer-gate-ui').style.display = 'block';
+                document.getElementById('buyer-chat-interface').style.display = 'none';
+            }
+        }
+
+        function renderBuyerChatLogs() {
+            const box = document.getElementById('buyer-chat-logs');
+            box.innerHTML = '';
+            if(!loggedClientChatID || !ALL_CHATS[loggedClientChatID]) return;
+
+            const msgs = ALL_CHATS[loggedClientChatID].messages;
+            if(msgs.length === 0) {
+                box.innerHTML = `<div class="chat-msg msg-admin">Spojení navázáno! Napište sem detaily platby nebo specifikaci a majitel se vám obratem ozve.</div>`;
+            } else {
+                msgs.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = `chat-msg ${m.sender === 'client' ? 'msg-client' : 'msg-admin'}`;
+                    div.innerText = m.text;
+                    box.appendChild(div);
+                });
+            }
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendBuyerMessage() {
+            const input = document.getElementById('buyer-chat-input');
+            const text = input.value.trim();
+            if(!text || !loggedClientChatID) return;
+
+            ALL_CHATS[loggedClientChatID].messages.push({ sender: 'client', text: text });
+            saveState();
+            renderBuyerChatLogs();
+            input.value = '';
+        }
+
+        function exitBuyerChat() {
+            loggedClientChatID = null;
+            sessionStorage.removeItem('active_client_chat_id');
+            document.getElementById('buyerLoginForm').reset();
+            checkClientSession();
+        }
+
+        // --- ADMIN HUB BACKEND ---
+        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('admin-user').value.trim();
+            const pass = document.getElementById('admin-pass').value.trim();
+
+            if (ACCOUNTS[user] && ACCOUNTS[user] === pass) {
+                document.getElementById('admin-logged-name').innerText = `Přihlášen jako: ${user}`;
+                document.getElementById('auth-gate-ui').style.display = 'none';
+                document.getElementById('dashboard-main-ui').classList.add('unlocked');
+                updateAdminDashboard();
+            } else {
+                alert("Nesprávné administrátorské údaje!");
+            }
+        });
+
+        function updateAdminDashboard() {
+            const roster = document.getElementById('admin-session-list');
+            roster.innerHTML = '<div class="sidebar-header">Aktivní kanály klientů</div>';
+
+            const activeIds = Object.keys(ALL_CHATS);
+            if(activeIds.length === 0) {
+                roster.innerHTML += `<div style="padding:16px; font-size:0.8rem; color:var(--text-muted);">Zatím žádné založené objednávky</div>`;
+                return;
+            }
+
+            activeIds.forEach(id => {
+                const item = document.createElement('div');
+                item.className = `user-session-item ${selectedAdminActiveSession === id ? 'selected-session' : ''}`;
+                item.innerHTML = `<strong>${ALL_CHATS[id].name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">${id}</span>`;
+                item.onclick = () => {
+                    selectedAdminActiveSession = id;
+                    document.getElementById('admin-current-chat-title').innerText = `Komunikace s: ${ALL_CHATS[id].name} (${id})`;
+                    document.getElementById('admin-chat-input').disabled = false;
+                    document.getElementById('admin-chat-btn').disabled = false;
+                    updateAdminDashboard();
+                };
+                roster.appendChild(item);
+            });
+
+            if (selectedAdminActiveSession) renderAdminChatLogs();
+        }
+
+        function renderAdminChatLogs() {
+            const box = document.getElementById('admin-chat-logs');
+            box.innerHTML = '';
+            if (!selectedAdminActiveSession || !ALL_CHATS[selectedAdminActiveSession]) return;
+
+            const msgs = ALL_CHATS[selectedAdminActiveSession].messages;
+            msgs.forEach(m => {
+                const div = document.createElement('div');
+                div.className = `chat-msg ${m.sender === 'client' ? 'msg-client' : 'msg-admin'}`;
+                div.innerText = m.text;
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendAdminMessage() {
+            const input = document.getElementById('admin-chat-input');
+            const text = input.value.trim();
+            if(!text || !selectedAdminActiveSession) return;
+
+            ALL_CHATS[selectedAdminActiveSession].messages.push({ sender: 'admin', text: text });
+            saveState();
+            renderAdminChatLogs();
+            input.value = '';
+        }
+
+        function logoutAdmin() {
+            document.getElementById('adminLoginForm').reset();
+            document.getElementById('dashboard-main-ui').classList.remove('unlocked');
+            document.getElementById('auth-gate-ui').style.display = 'block';
+        }
+
+        function saveState() {
+            localStorage.setItem('kmo_system_chats', JSON.stringify(ALL_CHATS));
+        }
+
+        // --- CHECKOUT FLOW ---
+        function setPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            document.getElementById('method-paypal').classList.remove('selected');
+            document.getElementById('method-bank').classList.remove('selected');
+            if(method === 'PayPal') document.getElementById('method-paypal').classList.add('selected');
+            else document.getElementById('method-bank').classList.add('selected');
+        }
+
+        function openGateModal(service) {
+            document.getElementById('slide-form').classList.add('active-slide');
+            document.getElementById('slide-payment-details').classList.remove('active-slide');
+            document.getElementById('f-service').value = service;
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+
+        function closeGateModal() {
+            document.getElementById('checkoutModal').classList.remove('active');
+            document.getElementById('checkoutForm').reset();
+            setPaymentMethod('PayPal');
+        }
+
+        document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const clientName = document.getElementById('f-name').value.trim();
+            
+            const chatId = "#CHAT-" + Math.floor(1000 + Math.random() * 9000);
+            const token = "KMO-SEC-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+
+            ALL_CHATS[chatId] = {
+                name: clientName,
+                token: token,
+                messages: []
+            };
+            saveState();
+
+            document.getElementById('generated-chat-id').innerText = chatId;
+            document.getElementById('generated-buyer-token').innerText = token;
+
+            if (selectedPaymentMethod === "Bank Transfer") {
+                document.getElementById('pay-title').innerText = "🏦 Bankovní převod - Údaje";
+                document.getElementById('bank-info-group').style.display = "block";
+                document.getElementById('paypal-info-group').style.display = "none";
+            } else {
+                document.getElementById('pay-title').innerText = "💳 PayPal - Údaje k platbě";
+                document.getElementById('bank-info-group').style.display = "none";
+                document.getElementById('paypal-info-group').style.display = "block";
+            }
+
+            document.getElementById('slide-form').classList.remove('active-slide');
+            document.getElementById('slide-payment-details').classList.add('active-slide');
+        });
+
+        function goToChatViewDirectly() {
+            closeGateModal();
+            window.location.hash = '#buyer-chat';
+        }
+    </script>
+</body>
+</html>
