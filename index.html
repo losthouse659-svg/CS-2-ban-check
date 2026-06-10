@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mikin Lab // CS2 Anti-Cheat & Profile Checker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #0a0a0c;
+            --bg-surface: #121216;
+            --bg-surface-hover: #1a1a22;
+            --accent: #00ff66;
+            --accent-dim: rgba(0, 255, 102, 0.1);
+            --danger: #ff3333;
+            --danger-dim: rgba(255, 51, 51, 0.1);
+            --warning: #ffaa00;
+            --text-main: #f3f4f6;
+            --text-muted: #8b8e99;
+            --border: #22222a;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --max-width: 1200px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        .container { max-width: var(--max-width); margin: 0 auto; padding: 0 24px; }
+        .accent-text { color: var(--accent); font-family: var(--font-mono); }
+        .danger-text { color: var(--danger); font-family: var(--font-mono); }
+        .warning-text { color: var(--warning); font-family: var(--font-mono); }
+
+        header {
+            background: rgba(10, 10, 12, 0.8);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+        .nav-container { display: flex; justify-content: space-between; align-items: center; height: 72px; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-main); font-weight: 800; font-size: 20px; }
+
+        .hero h1 { font-size: 40px; font-weight: 800; margin-bottom: 12px; letter-spacing: -1px; }
+        .hero p { color: var(--text-muted); margin-bottom: 30px; font-size: 15px; }
+
+        .scanner-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 30px;
+        }
+        .input-group { display: flex; gap: 12px; }
+        .input-group input {
+            background: #000;
+            border: 1px solid var(--border);
+            color: #fff;
+            font-family: var(--font-mono);
+            padding: 14px;
+            border-radius: 6px;
+            flex: 1;
+            font-size: 14px;
+        }
+        .input-group input:focus { border-color: var(--accent); outline: none; }
+        
+        .btn { padding: 14px 28px; border-radius: 6px; font-size: 14px; font-weight: 700; border: none; cursor: pointer; font-family: var(--font-sans); }
+        .btn-primary { background: var(--accent); color: #000; }
+
+        .monitor-panel {
+            background: #000;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+        }
+        .monitor-header { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; color: var(--text-muted); }
+        .log-row { margin-bottom: 10px; display: flex; flex-direction: column; gap: 4px; }
+        
+        .badge { padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px; display: inline-block; margin-top: 5px; }
+        .badge-clean { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent); }
+        .badge-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid var(--danger); }
+        .badge-warning { background: rgba(255,170,0,0.1); color: var(--warning); border: 1px solid var(--warning); }
+
+        .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
+        .info-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+        .info-card h4 { color: var(--text-muted); font-size: 11px; margin-bottom: 6px; text-transform: uppercase; }
+        .info-card p { font-size: 18px; font-weight: 800; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-container">
+            <a href="#" class="logo">MIKIN<span class="accent-text">LAB</span></a>
+            <div class="accent-text" style="font-size: 12px;">URL_RESOLVER_MODE</div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>STEAM URL ANTI-CHEAT SCANNER</h1>
+            <p>Vlož celou URL adresu profilu přímo ze hry nebo prohlížeče. Systém automaticky přeloží nick na ID a zkontroluje historii trestů.</p>
+            
+            <div class="scanner-container">
+                <div class="input-group">
+                    <input type="text" id="steam-id-input" placeholder="Vlož URL profilu (např. https://steamcommunity.com/id/custom_name nebo jen ID64)">
+                    <button onclick="processInput()" class="btn btn-primary">RESOLVE & SCAN</button>
+                </div>
+            </div>
+
+            <div class="monitor-panel">
+                <div class="monitor-header">
+                    <span>DETECTION CORE V3.5 // LIVE REWRITE</span>
+                    <span id="scan-status" class="accent-text">READY</span>
+                </div>
+                
+                <div id="terminal-output">
+                    <div class="log-row"><span style="color:var(--text-muted)">[SYSTEM] Čekám na vložení Steam URL adresy nebo ID...</span></div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <h4>Účet vytvořen</h4>
+                        <p id="card-created">--</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>VAC / Game Bans</h4>
+                        <p id="card-bans">--</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>Verdikt profilu</h4>
+                        <p id="card-verdict">--</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const STEAM_API_KEY = "10AAF537642212384F6D803D2E3B2546";
+        const PROXY = "https://cors-anywhere.herokuapp.com/";
+
+        // Hlavní funkce, která zpracuje vstup a vytáhne z něj čisté ID nebo nick
+        async function processInput() {
+            const input = document.getElementById("steam-id-input").value.trim();
+            const output = document.getElementById("terminal-output");
+            const status = document.getElementById("scan-status");
+
+            if (!input) {
+                alert("Vlož odkaz nebo ID!");
+                return;
+            }
+
+            status.innerText = "PARSING_INPUT...";
+            status.className = "warning-text";
+            output.innerHTML = `<div>[+] Analyzuji zadaný formát řetězce...</div>`;
+
+            let steamId64 = "";
+
+            // 1. Regex pro formát: steamcommunity.com/profiles/[ČÍSLO]
+            const profilesMatch = input.match(/steamcommunity\.com\/profiles\/([0-9]{17})/);
+            // 2. Regex pro formát: steamcommunity.com/id/[TEXT_NICK]
+            const idMatch = input.match(/steamcommunity\.com\/id\/([a-zA-Z0-9_\-]+)/);
+
+            if (profilesMatch) {
+                steamId64 = profilesMatch[1];
+                output.innerHTML += `<div>[+] Detekována přímá profilová URL. Nalezeno ID: ${steamId64}</div>`;
+                await scanSteamProfile(steamId64);
+            } else if (idMatch) {
+                const vanityUrlText = idMatch[1];
+                output.innerHTML += `<div>[+] Detekována Custom URL (/id/${vanityUrlText}). Spouštím překlad na SteamID64...</div>`;
+                
+                steamId64 = await resolveVanityUrl(vanityUrlText);
+                if (steamId64) {
+                    output.innerHTML += `<div>[+] Překlad úspěšný. Získané ID: ${steamId64}</div>`;
+                    await scanSteamProfile(steamId64);
+                }
+            } else if (/^[0-9]{17}$/.test(input)) {
+                // Pokud uživatel zadal rovnou čisté 17místné číslo
+                steamId64 = input;
+                output.innerHTML += `<div>[+] Detekováno přímé SteamID64 číslo.</div>`;
+                await scanSteamProfile(steamId64);
+            } else {
+                output.innerHTML = `<div class="danger-text">[-] Neplatný formát. Vlož celou URL (např. https://steamcommunity.com/id/...) nebo 17místné ID64 číslo.</div>`;
+                status.innerText = "INVALID_INPUT";
+                status.className = "danger-text";
+            }
+        }
+
+        // Pomocná funkce pro překlad textového nicku z URL na číselné SteamID64
+        async function resolveVanityUrl(vanityText) {
+            const output = document.getElementById("terminal-output");
+            const status = document.getElementById("scan-status");
+            const resolveApi = `https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${STEAM_API_KEY}&vanityurl=${vanityText}`;
+
+            try {
+                const response = await fetch(PROXY + resolveApi);
+                
+                if (response.status === 403) {
+                    triggerCorsError();
+                    return null;
+                }
+
+                const data = await response.json();
+                if (data.response && data.response.success === 1) {
+                    return data.response.steamid;
+                } else {
+                    output.innerHTML = `<div class="danger-text">[-] Valve API nedokázalo převést nick "${vanityText}" na ID. Existuje ten profil vůbec?</div>`;
+                    status.innerText = "RESOLVE_FAILED";
+                    status.className = "danger-text";
+                    return null;
+                }
+            } catch (err) {
+                console.error(err);
+                output.innerHTML = `<div class="danger-text">[-] Síťová chyba při překladu adresy.</div>`;
+                status.innerText = "ERROR";
+                return null;
+            }
+        }
+
+        // Finální skenování dat profilu a herních banů podle získaného ID64
+        async function scanSteamProfile(steamId) {
+            const output = document.getElementById("terminal-output");
+            const status = document.getElementById("scan-status");
+
+            status.innerText = "FETCHING_VALVE_DATA...";
+            output.innerHTML += `<div>[+] Stahuji detailní data o účtu a registrech trestů...</div>`;
+
+            const summaryUrl = `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+            const bansUrl = `https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key=${STEAM_API_KEY}&steamids=${steamId}`;
+
+            try {
+                const resSummary = await fetch(PROXY + summaryUrl);
+                const dataSummary = await resSummary.json();
+                
+                if (!dataSummary.response.players || dataSummary.response.players.length === 0) {
+                    output.innerHTML = `<div class="danger-text">[-] Živá data profilu nebyla nalezena.</div>`;
+                    status.innerText = "NOT_FOUND";
+                    return;
+                }
+
+                const player = dataSummary.response.players[0];
+
+                const resBans = await fetch(PROXY + bansUrl);
+                const dataBans = await resBans.json();
+                const playerBans = dataBans.players[0];
+
+                const isPrivate = player.communityvisibilitystate !== 3;
+                const creationDate = player.timecreated ? new Date(player.timecreated * 1000).toLocaleDateString("cs-CZ") : "Skrytý / Private";
+                
+                const vacBans = playerBans.NumberOfVACBans;
+                const gameBans = playerBans.NumberOfGameBans;
+                const communityBanned = playerBans.CommunityBanned;
+
+                let verdict = "ČISTÝ ÚČET";
+                let badgeClass = "badge-clean";
+                let detailLog = "[OK] Hráč nemá v databázi evidované žádné aktivní bany.";
+
+                if (isPrivate) {
+                    verdict = "SKRYTÝ / PODEZŘELÝ";
+                    badgeClass = "badge-warning";
+                    detailLog = "[POZOR] Profil je soukromý. Častá taktika smurfů a aktivních cheaterů.";
+                }
+
+                if (player.timecreated && (Date.now() / 1000 - player.timecreated) < 31536000) {
+                    verdict = "ČERSTVÝ ÚČET (SMURF)";
+                    badgeClass = "badge-warning";
+                    detailLog = "[VAROVÁNÍ] Účet je mladší než 1 rok. Vysoké riziko zakoupeného nebo alternativního profilu.";
+                }
+
+                if (vacBans > 0 || gameBans > 0 || communityBanned) {
+                    verdict = "POTVRZENÝ CHEATER";
+                    badgeClass = "badge-danger";
+                    detailLog = `[DETEKCE] Účet má aktivní záznam! VAC bany: ${vacBans}, Herní bany: ${gameBans}.`;
+                }
+
+                status.innerText = "SUCCESS";
+                status.className = "accent-text";
+
+                output.innerHTML = `
+                    <div>[STATUS] Analýza úspěšně dokončena.</div>
+                    <div style="margin-top:8px;">Hráč: <strong class="accent-text">${player.personaname}</strong></div>
+                    <div>Přiřazené ID: <code>${player.steamid}</code></div>
+                    <div style="margin-top:8px; color:var(--text-muted)">${detailLog}</div>
+                `;
+
+                document.getElementById("card-created").innerText = creationDate;
+                document.getElementById("card-bans").innerText = `VAC: ${vacBans} | Game: ${gameBans}`;
+                document.getElementById("card-verdict").innerHTML = `<span class="badge ${badgeClass}">${verdict}</span>`;
+
+            } catch (err) {
+                console.error(err);
+                output.innerHTML = `<div class="danger-text">[-] Selhal pokus o parsing dat.</div>`;
+                status.innerText = "ERROR";
+            }
+        }
+
+        function triggerCorsError() {
+            const output = document.getElementById("terminal-output");
+            const status = document.getElementById("scan-status");
+            output.innerHTML = `
+                <div class="danger-text">[CORS_LOCK] Aktivuj dočasný přístup k proxy serveru.</div>
+                <div style="margin-top: 10px;">1. Otevři odkaz: <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" style="color:var(--accent); font-weight:bold;">cors-anywhere.herokuapp.com/corsdemo</a></div>
+                <div>2. Klikni na tlačítko <strong>"Request temporary access to the demo server"</strong>.</div>
+                <div style="margin-top: 5px;">3. Pak se vrať sem a stiskni tlačítko znovu.</div>
+            `;
+            status.innerText = "PROXY_AUTH_REQUIRED";
+            status.className = "warning-text";
+        }
+    </script>
+</body>
+</html>
